@@ -48,6 +48,7 @@ export default function HomeScreen() {
             <SafeAreaView className={ios ? "-mb-2": "mb-3" }>
                 <StatusBar backgroundColor="transparent" translucent barStyle="black-content" />
                 <View className="flex-row items-center justify-between mx-4 ">
+
                     <Bars3CenterLeftIcon size="30" strokeWidth="2" color="white" />
 
                     <Text className="text-white text-3xl font-bold">
