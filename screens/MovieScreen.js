@@ -8,9 +8,10 @@ import { styles } from "../theme";
 import { LinearGradient } from "expo-linear-gradient";
 import { Cast } from "../components/Cast";
 import MovieList from "../components/MovieList";
-import { fallbackMoviePoster, fetchMovieCredits, fetchMovieDetails, fetchSimilarMovies, image500 } from "../api/moviedb";
+import { fallbackMoviePoster, fetchMovieCredits, fetchMovieDetails, fetchSimilarMovies, fetchMovieVideos, image500 } from "../api/moviedb";
 import FavoriteButton from "../components/FavoriteButton";
 import Loading from "../components/loading";
+import { WebView } from 'react-native-webview';
 
 const { width, height } = Dimensions.get('window');
 const ios = Platform.OS === 'ios';
@@ -22,14 +23,16 @@ export default function MovieScreen() {
     const [cast, setCast] = useState([]);
     const [similarMovies, setSimilarMovies] = useState([]);
     const [movie, setMovie] = useState({});
-    const [loading, setLoading] = useState(true); // State for loading
+    const [loading, setLoading] = useState(true);
+    const [trailerUrl, setTrailerUrl] = useState(''); // State for YouTube trailer
 
     useEffect(() => {
         const fetchData = async () => {
             await getMovieDetails(item.id);
             await getSimilarMovies(item.id);
             await getMovieCredits(item.id);
-            setLoading(false); // Set loading to false after data fetching
+            await getMovieTrailer(item.id); // Fetch trailer
+            setLoading(false);
         };
         fetchData();
     }, []);
@@ -49,6 +52,16 @@ export default function MovieScreen() {
         setCast(data.cast);
     };
 
+    const getMovieTrailer = async (id) => {
+        const videos = await fetchMovieVideos(id);
+        const youtubeTrailer = videos.results.find(
+            (video) => video.site === 'YouTube' && video.type === 'Trailer'
+        );
+        if (youtubeTrailer) {
+            setTrailerUrl(`https://www.youtube.com/embed/${youtubeTrailer.key}`);
+        }
+    };
+
     return (
         <ScrollView
             contentContainerStyle={{ paddingBottom: 20 }}
@@ -63,7 +76,7 @@ export default function MovieScreen() {
                     <FavoriteButton item={movie} type="movie" />
                 </SafeAreaView>
 
-                {loading ? ( // Show loading indicator if loading
+                {loading ? (
                     <Loading />
                 ) : (
                     <View>
@@ -86,7 +99,7 @@ export default function MovieScreen() {
                     </View>
                 )}
 
-                {!loading && ( // Only show the following when not loading
+                {!loading && (
                     <View style={{ marginTop: -height * 0.09 }} className="space-y-1">
                         <Text className="text-white text-3xl text-center font-bold tracking-wider">{movie.title}</Text>
                         <Text className="text-neutral-400 font-semibold text-base text-center">{movie.tagline}</Text>
@@ -116,12 +129,23 @@ export default function MovieScreen() {
                         <Text className="text-neutral-400 text-base px-4">{movie.overview}</Text>
                     </>
                 )}
-            </View>
 
-            {/* Cast */}
-            {!loading && <Cast cast={cast} navigation={navigation} />}
-            {/* Similar Movies */}
-            {!loading && <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} />}
+                {/* Embed YouTube Video */}
+                {!loading && trailerUrl && (
+                    <View style={{ height: height * 0.3, marginTop: 20 }}>
+                        <WebView
+                            source={{ uri: trailerUrl }}
+                            style={{ flex: 1 }}
+                            javaScriptEnabled={true}
+                        />
+                    </View>
+                )}
+
+                {/* Cast */}
+                {!loading && <Cast cast={cast} navigation={navigation} />}
+                {/* Similar Movies */}
+                {!loading && <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} />}
+            </View>
         </ScrollView>
     );
 }

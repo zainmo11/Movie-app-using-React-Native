@@ -15,7 +15,7 @@ const movieCredits = (id) => `${apiBaseUrl}/movie/${id}/credits?api_key=${API_KE
 const similarMovies = (id) => `${apiBaseUrl}/movie/${id}/similar?api_key=${API_KEY}`;
 const personDetails = (id) => `${apiBaseUrl}/person/${id}?api_key=${API_KEY}`;
 const personMovies = (id) => `${apiBaseUrl}/person/${id}/movie_credits?api_key=${API_KEY}`;
-
+const movieVideos = (id) => `${apiBaseUrl}/movie/${id}/videos?api_key=${API_KEY}`;
 
 export const image500 =path=>path?  `https://image.tmdb.org/t/p/w500${path}`:null;
 export const image342 =path=>path?  `https://image.tmdb.org/t/p/w342${path}`:null;
@@ -73,4 +73,8 @@ export const fetchPersonCredits = async (id) => {
 
 export const searchMovie = async (query) => {
     return await apiCall(searchMovies, query);
+}
+
+export const fetchMovieVideos = async (id) => {
+    return await apiCall(movieVideos(id));
 }
