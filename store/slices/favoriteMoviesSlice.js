@@ -9,9 +9,12 @@ const favoriteMoviesSlice = createSlice({
         },
         removeFavoriteMovie: (state, action) => {
             return state.filter(movie => movie.id !== action.payload.id);  // Remove movie by id
+        },
+        getFavoriteMovies: (state) => {
+            return state;
         }
     }
 });
 
-export const { addFavoriteMovie, removeFavoriteMovie } = favoriteMoviesSlice.actions;
+export const { addFavoriteMovie, removeFavoriteMovie, getFavoriteMovies } = favoriteMoviesSlice.actions;
 export default favoriteMoviesSlice.reducer;

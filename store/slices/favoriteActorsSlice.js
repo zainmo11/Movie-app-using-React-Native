@@ -9,9 +9,12 @@ const favoriteActorsSlice = createSlice({
         },
         removeFavoriteActor: (state, action) => {
             return state.filter(actor => actor.id !== action.payload.id);  // Remove actor by id
+        },
+        getFavoriteActors: (state) => {
+            return state;
         }
     }
 });
 
-export const { addFavoriteActor, removeFavoriteActor } = favoriteActorsSlice.actions;
+export const { addFavoriteActor, removeFavoriteActor,getFavoriteActors } = favoriteActorsSlice.actions;
 export default favoriteActorsSlice.reducer;

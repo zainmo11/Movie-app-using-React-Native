@@ -8,20 +8,32 @@ import MovieList from "../components/MovieList";
 import {useNavigation} from "@react-navigation/native";
 import Loading from "../components/loading";
 import {fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies} from "../api/moviedb";
+import {useDispatch, useSelector} from "react-redux";
+import  {getFavoriteMovies}  from '../store/slices/favoriteMoviesSlice';
+import {getFavoriteActors} from "../store/slices/favoriteActorsSlice";
 
 const ios = Platform.OS === 'ios';
 export default function HomeScreen() {
     const [trendingMovies, setTrendingMovies] = React.useState([]);
     const [upcomingMovies, setUpcomingMovies] = React.useState([]);
     const [topRatedMovies, setTopRatedMovies] = React.useState([]);
+    const [favoriteMovies, setFavoriteMovies] = React.useState([]);
+    const [favoritePerson, setFavoritePerson] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
     const navigation = useNavigation();
+
+    const dispatch = useDispatch();
+
+    const favoriteMoviesFromStore = useSelector((state) => state.favoriteMovies);
+    const favoritePersonFromStore = useSelector((state) => state.favoriteActors);
 
     useEffect(() => {
         getTrendingMovies();
         getUpcomingMovies();
         getTopRatedMovies();
-    }, []);
+        getFavoriteMoviesFun();
+        //getFavoritePersonFun();
+    }, [dispatch, favoriteMoviesFromStore, favoritePersonFromStore]);
     const getTrendingMovies = async () => {
         setLoading(true);
         const data = await fetchTrendingMovies()
@@ -41,26 +53,23 @@ export default function HomeScreen() {
         setTopRatedMovies(data.results);
         setLoading(false);
     }
+    const getFavoriteMoviesFun = async () => {
+        await dispatch(getFavoriteMovies());
+        if (favoriteMoviesFromStore) {
+            setFavoriteMovies(favoriteMoviesFromStore);
+        }
+    }
+    const getFavoritePersonFun = async () => {
+        await dispatch(getFavoriteActors());
 
+        if (favoritePersonFromStore) {
+            setFavoritePerson(favoritePersonFromStore);
+        }
+        console.log("favoritePersonFromStore",favoritePersonFromStore);
+    }
 
     return (
         <View className="flex-1  bg-neutral-900">
-            <SafeAreaView className={ios ? "-mb-2": "mb-3" }>
-                <StatusBar backgroundColor="transparent" translucent barStyle="black-content" />
-                <View className="flex-row items-center justify-between mx-4 ">
-
-                    <Bars3CenterLeftIcon size="30" strokeWidth="2" color="white" />
-
-                    <Text className="text-white text-3xl font-bold">
-                        <Text style={styles.text}>M</Text>
-                        ovies
-                    </Text>
-                    <TouchableOpacity onPress={()=>navigation.navigate('Search')}>
-                        <MagnifyingGlassIcon size="30" strokeWidth="2" color="white" />
-                    </TouchableOpacity>
-                </View>
-
-            </SafeAreaView>
             {
                 loading? (
                     <Loading />
@@ -74,6 +83,9 @@ export default function HomeScreen() {
 
                 {upcomingMovies.length>0 && <MovieList title="Upcoming" data={upcomingMovies} />}
                 {topRatedMovies.length>0 && <MovieList title="Top Rated" data={topRatedMovies} />}
+
+                {favoriteMovies.length>0 &&<MovieList title="Favorite Movies" data={favoriteMovies} />}
+                {/*{favoritePerson.length>0 &&<MovieList title="Favorite Actors" data={favoritePerson} />}*/}
             </ScrollView>
                 )
             }
