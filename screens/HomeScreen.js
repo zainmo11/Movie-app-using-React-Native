@@ -19,7 +19,7 @@ export default function HomeScreen() {
     const [topRatedMovies, setTopRatedMovies] = React.useState([]);
     const [favoriteMovies, setFavoriteMovies] = React.useState([]);
     const [favoritePerson, setFavoritePerson] = React.useState([]);
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = React.useState(true);
     const navigation = useNavigation();
 
     const dispatch = useDispatch();
@@ -28,10 +28,18 @@ export default function HomeScreen() {
     const favoritePersonFromStore = useSelector((state) => state.favoriteActors);
 
     useEffect(() => {
-        getTrendingMovies();
-        getUpcomingMovies();
-        getTopRatedMovies();
-        getFavoriteMoviesFun();
+        try {
+            getTrendingMovies();
+            getUpcomingMovies();
+            getTopRatedMovies();
+            getFavoriteMoviesFun();
+        }
+        catch (error) {
+            console.error('Error fetching data:', error);
+        }
+        finally {
+            setLoading(false);
+        }
         //getFavoritePersonFun();
     }, [dispatch, favoriteMoviesFromStore, favoritePersonFromStore]);
     const getTrendingMovies = async () => {
