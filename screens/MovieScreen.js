@@ -28,14 +28,19 @@ export default function MovieScreen() {
 
     useEffect(() => {
         const fetchData = async () => {
-            await getMovieDetails(item.id);
-            await getSimilarMovies(item.id);
-            await getMovieCredits(item.id);
-            await getMovieTrailer(item.id); // Fetch trailer
-            setLoading(false);
+            try {
+                await getMovieDetails(item.id);
+                await getSimilarMovies(item.id);
+                await getMovieCredits(item.id);
+                await getMovieTrailer(item.id);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
         };
         fetchData();
-    }, []);
+    }, [])
 
     const getMovieDetails = async (id) => {
         const data = await fetchMovieDetails(id);
